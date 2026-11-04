@@ -3,6 +3,7 @@ import { loadDictionary, search } from './dictionary.js';
 import { PERSONS, IMPERATIVE_PERSONS, TENSES, IMPERATIVES } from './conjugation.js';
 import { escapeHtml, entryMeta } from './format.js';
 import { initCards } from './cards.js';
+import { initQuiz } from './quiz.js';
 import { initSpeech } from './speech.js';
 
 const form = document.getElementById('search-form');
@@ -12,11 +13,15 @@ const results = document.getElementById('results');
 const views = {
   dictionary: document.getElementById('dictionary-view'),
   cards: document.getElementById('cards-view'),
+  quiz: document.getElementById('quiz-view'),
 };
 const tabs = document.querySelectorAll('[data-view]');
 
+// Вкладки, которые запускаются при первом открытии.
+const starters = { cards: initCards, quiz: initQuiz };
+const started = new Set();
+
 let entries = [];
-let cardsStarted = false;
 
 function renderTable({ label, ru }, forms, persons) {
   const rows = forms
@@ -89,14 +94,15 @@ function update() {
   history.replaceState(null, '', url);
 }
 
-// Вкладка выбирается по хэшу: #cards — карточки, иначе словарь.
+// Вкладка выбирается по хэшу: #cards — карточки, #quiz — тест, иначе словарь.
 function showView() {
-  const name = location.hash === '#cards' ? 'cards' : 'dictionary';
+  const hash = location.hash.slice(1);
+  const name = hash in views ? hash : 'dictionary';
   for (const [key, view] of Object.entries(views)) view.hidden = key !== name;
   for (const tab of tabs) tab.setAttribute('aria-current', tab.dataset.view === name ? 'page' : 'false');
-  if (name === 'cards' && entries.length && !cardsStarted) {
-    cardsStarted = true;
-    initCards(entries, views.cards);
+  if (starters[name] && entries.length && !started.has(name)) {
+    started.add(name);
+    starters[name](entries, views[name]);
   }
 }
 
