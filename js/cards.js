@@ -94,7 +94,7 @@ export function initCards(entries, root) {
   function render() {
     flipped = false;
     card.classList.remove('flipped');
-    knownButton.disabled = unknownButton.disabled = true;
+    knownButton.disabled = unknownButton.disabled = !current;
     hint.hidden = false;
 
     if (!current) {
@@ -122,27 +122,39 @@ export function initCards(entries, root) {
     renderStats();
   }
 
-  // event — клик по карточке; если кликнули по самому слову, его уже озвучил обработчик из speech.js.
-  function flip(event) {
+  function speakWord() {
+    speak(current.word, card.querySelector('.speak[data-word]'));
+  }
+
+  function flip() {
     if (!current || flipped) return;
     flipped = true;
     card.classList.add('flipped');
-    knownButton.disabled = unknownButton.disabled = false;
     hint.hidden = true;
+    if (autospeakToggle.checked) speakWord();
+  }
 
-    if (autospeakToggle.checked && !event?.target.closest('.speak')) {
-      speak(current.word, card.querySelector('.speak[data-word]'));
+  // Клик по карточке переворачивает её и всегда произносит слово, в том числе повторно.
+  // Если кликнули по самому слову, его уже озвучил обработчик из speech.js.
+  function onCardClick(event) {
+    if (!current) return;
+    const onWord = event.target.closest('.speak');
+    if (!flipped) {
+      flipped = true;
+      card.classList.add('flipped');
+      hint.hidden = true;
     }
+    if (!onWord) speakWord();
   }
 
   function answer(known) {
-    if (!current || !flipped) return;
+    if (!current) return;
     progress[id(current)] = known ? Math.min(box(current) + 1, BOX_WEIGHTS.length - 1) : 0;
     saveProgress(progress);
     next();
   }
 
-  card.addEventListener('click', flip);
+  card.addEventListener('click', onCardClick);
   knownButton.addEventListener('click', () => answer(true));
   unknownButton.addEventListener('click', () => answer(false));
   directionSelect.addEventListener('change', render);
