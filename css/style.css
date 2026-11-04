@@ -99,6 +99,8 @@ body {
 .tabs a[aria-current="page"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
 
 .cards-controls { display: flex; gap: 16px; flex-wrap: wrap; color: var(--muted); margin-bottom: 16px; }
+.cards-autospeak { display: inline-flex; align-items: center; gap: 6px; }
+.no-speech .cards-autospeak { display: none; }
 .cards-controls select {
   margin-left: 6px;
   padding: 4px 6px;

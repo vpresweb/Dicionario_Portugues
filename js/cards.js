@@ -2,8 +2,10 @@
 // Интервальное повторение по системе Лейтнера: 5 коробок, слова из младших коробок
 // выпадают чаще; «знаю» переносит слово в следующую коробку, «не знаю» — в первую.
 import { escapeHtml, entryMeta } from './format.js';
+import { speak } from './speech.js';
 
 const STORAGE_KEY = 'dicionario.cards.v2';
+const AUTOSPEAK_KEY = 'dicionario.cards.autospeak';
 const BOX_WEIGHTS = [16, 8, 4, 2, 1];
 const LEARNED_BOX = 3;
 const OTHER_POS = new Set(['adv', 'prep', 'pron', 'conj', 'interj', 'num', 'phrase']);
@@ -24,6 +26,22 @@ function saveProgress(progress) {
   }
 }
 
+function loadAutospeak() {
+  try {
+    return localStorage.getItem(AUTOSPEAK_KEY) !== 'off';
+  } catch {
+    return true;
+  }
+}
+
+function saveAutospeak(enabled) {
+  try {
+    localStorage.setItem(AUTOSPEAK_KEY, enabled ? 'on' : 'off');
+  } catch {
+    // Хранилище недоступно — настройка действует до перезагрузки.
+  }
+}
+
 function matchesFilter(entry, filter) {
   if (filter === 'all') return true;
   if (filter === 'other') return OTHER_POS.has(entry.pos);
@@ -41,8 +59,10 @@ export function initCards(entries, root) {
   const filterSelect = root.querySelector('#cards-filter');
   const stats = root.querySelector('#cards-stats');
   const resetButton = root.querySelector('#cards-reset');
+  const autospeakToggle = root.querySelector('#cards-autospeak');
 
   const progress = loadProgress();
+  autospeakToggle.checked = loadAutospeak();
   let current = null;
   let flipped = false;
   let resetArmed = null;
@@ -84,7 +104,7 @@ export function initCards(entries, root) {
     }
 
     const ptToRu = directionSelect.value === 'pt';
-    const word = `<span class="speak" lang="pt" title="Прослушать">${escapeHtml(current.word)}</span>`;
+    const word = `<span class="speak" lang="pt" data-word title="Прослушать">${escapeHtml(current.word)}</span>`;
     const translation = escapeHtml(current.translations.join(', '));
     const meta = entryMeta(current);
     const example = current.examples?.[0];
@@ -102,12 +122,17 @@ export function initCards(entries, root) {
     renderStats();
   }
 
-  function flip() {
+  // event — клик по карточке; если кликнули по самому слову, его уже озвучил обработчик из speech.js.
+  function flip(event) {
     if (!current || flipped) return;
     flipped = true;
     card.classList.add('flipped');
     knownButton.disabled = unknownButton.disabled = false;
     hint.hidden = true;
+
+    if (autospeakToggle.checked && !event?.target.closest('.speak')) {
+      speak(current.word, card.querySelector('.speak[data-word]'));
+    }
   }
 
   function answer(known) {
@@ -122,6 +147,7 @@ export function initCards(entries, root) {
   unknownButton.addEventListener('click', () => answer(false));
   directionSelect.addEventListener('change', render);
   filterSelect.addEventListener('change', next);
+  autospeakToggle.addEventListener('change', () => saveAutospeak(autospeakToggle.checked));
 
   // Сброс в два нажатия вместо confirm().
   resetButton.addEventListener('click', () => {
