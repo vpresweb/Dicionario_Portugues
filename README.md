@@ -1,1 +1,1 @@
-# Dicionario_Portugese
+# Dicionario_Portugues
