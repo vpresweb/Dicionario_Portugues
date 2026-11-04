@@ -1,4 +1,5 @@
 // Общие подписи и экранирование для словаря и карточек.
+import { isIrregular } from './conjugation.js';
 
 export const POS_LABELS = {
   noun: 'сущ.',
@@ -21,8 +22,14 @@ export function escapeHtml(text) {
   })[c]);
 }
 
+export function verbType(entry) {
+  if (entry.pos !== 'verb') return null;
+  if (isIrregular(entry.conjugation)) return 'неправильный';
+  return entry.conjugation?.participio ? 'правильный, неправ. причастие' : 'правильный';
+}
+
 export function entryMeta(entry) {
-  return [POS_LABELS[entry.pos] ?? entry.pos, GENDER_LABELS[entry.gender]]
+  return [POS_LABELS[entry.pos] ?? entry.pos, GENDER_LABELS[entry.gender], verbType(entry)]
     .filter(Boolean)
     .join(', ');
 }

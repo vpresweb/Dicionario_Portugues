@@ -112,6 +112,12 @@ export function conjugate(infinitive, overrides = {}) {
   return result;
 }
 
+// Неправильный — если в словаре задана хотя бы одна форма времени или повелительного.
+// Особое причастие (ganhar → ganho) само по себе глагол неправильным не делает.
+export function isIrregular(overrides = {}) {
+  return [...TENSES.map((t) => t.key), 'imperativo'].some((key) => key in overrides);
+}
+
 // Все формы глагола одним списком — для поиска по формам (fiz → fazer).
 // Отрицательное повелительное не включаем: его формы совпадают с conjuntivo.
 export function allForms(conjugation) {

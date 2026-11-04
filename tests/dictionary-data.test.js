@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { prepareEntries } from '../js/dictionary.js';
 import { TENSES } from '../js/conjugation.js';
+import { entryMeta, verbType } from '../js/format.js';
 
 const raw = JSON.parse(readFileSync(new URL('../data/dictionary.json', import.meta.url), 'utf8'));
 const entries = prepareEntries(raw);
@@ -57,6 +58,22 @@ describe('структура словаря', () => {
         assert.ok(typeof form === 'string' && form.trim(), `${e.word}: пустая форма`);
       }
     }
+  });
+});
+
+describe('отметка правильный / неправильный', () => {
+  const type = (word) => verbType(entries.find((e) => e.word === word && e.pos === 'verb'));
+
+  test('глаголы', () => {
+    for (const w of ['ser', 'ter', 'fazer', 'pôr', 'sentir', 'dormir', 'manter', 'construir']) assert.equal(type(w), 'неправильный', w);
+    for (const w of ['falar', 'comer', 'partir', 'ficar', 'conhecer']) assert.equal(type(w), 'правильный', w);
+    for (const w of ['ganhar', 'pagar', 'abrir']) assert.equal(type(w), 'правильный, неправ. причастие', w);
+  });
+
+  test('у не-глаголов отметки нет, в подписи статьи она есть', () => {
+    assert.equal(verbType(entries.find((e) => e.word === 'casa')), null);
+    assert.equal(entryMeta(entries.find((e) => e.word === 'ser')), 'гл., неправильный');
+    assert.equal(entryMeta(entries.find((e) => e.word === 'casa')), 'сущ., ж. р.');
   });
 });
 

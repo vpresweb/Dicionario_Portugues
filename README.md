@@ -73,6 +73,9 @@ tests/                автотесты (node --test)
 }
 ```
 
+Глагол помечается как «неправильный», если у него задана хотя бы одна форма времени или повелительного;
+если отличается только причастие — «правильный, неправ. причастие».
+
 Ключи: `presente`, `perfeito`, `imperfeito`, `futuro`, `condicional`, `conjuntivo` (по шесть форм: eu, tu, ele, nós, vós, eles),
 `imperativo` (пять форм: tu, você, nós, vós, vocês), `participio`, `gerundio`.
 

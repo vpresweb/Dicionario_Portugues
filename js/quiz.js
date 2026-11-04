@@ -1,7 +1,7 @@
 // Тест на спряжение: показывается глагол, время и лицо — пользователь вводит форму.
 // Логика вопросов и проверки ответов вынесена в чистые функции (их покрывают автотесты),
 // initQuiz подключает её к странице.
-import { PERSONS, IMPERATIVE_PERSONS, TENSES, IMPERATIVES } from './conjugation.js';
+import { PERSONS, IMPERATIVE_PERSONS, TENSES, IMPERATIVES, isIrregular as isIrregularVerb } from './conjugation.js';
 import { normalize } from './dictionary.js';
 import { escapeHtml } from './format.js';
 import { speak } from './speech.js';
@@ -12,10 +12,8 @@ const SETTINGS_KEY = 'dicionario.quiz.settings';
 const DEFAULT_SETTINGS = { tenses: ['presente', 'perfeito'], set: 'all', vos: false };
 const ACCENTS = ['á', 'à', 'â', 'ã', 'é', 'ê', 'í', 'ó', 'ô', 'õ', 'ú', 'ç'];
 
-// Неправильным считаем глагол, у которого в словаре задана хотя бы одна форма времени.
 export function isIrregular(entry) {
-  const overrides = entry.conjugation ?? {};
-  return QUIZ_TENSES.some(({ key }) => key in overrides);
+  return isIrregularVerb(entry.conjugation);
 }
 
 export function filterVerbs(entries, set) {
