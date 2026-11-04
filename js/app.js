@@ -1,5 +1,6 @@
 // Интерфейс: поле поиска, переключатель направления, вывод карточек.
 import { loadDictionary, search } from './dictionary.js';
+import { PERSONS, TENSES } from './conjugation.js';
 
 const POS_LABELS = {
   noun: 'сущ.',
@@ -10,6 +11,8 @@ const POS_LABELS = {
   pron: 'мест.',
   conj: 'союз',
   interj: 'межд.',
+  num: 'числ.',
+  phrase: 'выражение',
 };
 
 const GENDER_LABELS = { m: 'м. р.', f: 'ж. р.' };
@@ -25,6 +28,33 @@ function escapeHtml(text) {
   return text.replace(/[&<>"']/g, (c) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
   })[c]);
+}
+
+function renderConjugation(conjugated) {
+  const tables = TENSES.filter(({ key }) => conjugated[key])
+    .map(({ key, label, ru }) => {
+      const rows = conjugated[key]
+        .map((form, i) => `<tr><td class="person">${PERSONS[i]}</td><td lang="pt">${escapeHtml(form)}</td></tr>`)
+        .join('');
+      return `
+        <table class="tense">
+          <caption><span lang="pt">${label}</span><small>${ru}</small></caption>
+          <tbody>${rows}</tbody>
+        </table>`;
+    })
+    .join('');
+
+  const extra = [
+    conjugated.participio && `Particípio: <b lang="pt">${escapeHtml(conjugated.participio)}</b>`,
+    conjugated.gerundio && `Gerúndio: <b lang="pt">${escapeHtml(conjugated.gerundio)}</b>`,
+  ].filter(Boolean).join(' · ');
+
+  return `
+    <details class="conjugation">
+      <summary>Спряжение</summary>
+      <div class="tenses">${tables}</div>
+      ${extra ? `<p class="verb-forms">${extra}</p>` : ''}
+    </details>`;
 }
 
 function renderEntry(entry) {
@@ -44,6 +74,7 @@ function renderEntry(entry) {
       </div>
       <p class="entry-translations">${entry.translations.map(escapeHtml).join(', ')}</p>
       ${examples ? `<ul class="entry-examples">${examples}</ul>` : ''}
+      ${entry.conjugated ? renderConjugation(entry.conjugated) : ''}
     </li>`;
 }
 

@@ -70,6 +70,22 @@ body {
 .entry-examples { margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
 .entry-examples .pt { color: var(--text); }
 
+.conjugation { margin-top: 10px; }
+.conjugation summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+.tenses {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+.tense { border-collapse: collapse; width: 100%; font-size: .95rem; }
+.tense caption { text-align: left; font-weight: 600; padding-bottom: 4px; }
+.tense caption small { display: block; font-weight: 400; color: var(--muted); }
+.tense td { padding: 2px 0; border-top: 1px solid var(--border); }
+.tense td.person { color: var(--muted); padding-right: 10px; white-space: nowrap; }
+.verb-forms { margin: 10px 0 0; color: var(--muted); }
+.verb-forms b { color: var(--text); }
+
 mark { background: none; color: var(--accent); font-weight: 600; }
 
 .site-footer { padding: 32px 16px; color: var(--muted); font-size: .9rem; }
