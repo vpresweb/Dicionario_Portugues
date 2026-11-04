@@ -1,0 +1,81 @@
+:root {
+  --bg: #fafaf7;
+  --surface: #ffffff;
+  --text: #1d1d1b;
+  --muted: #6b6b66;
+  --accent: #046a38;
+  --border: #e2e2dc;
+  --radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161614;
+    --surface: #20201e;
+    --text: #ecece6;
+    --muted: #a0a09a;
+    --accent: #3fbf7f;
+    --border: #34342f;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.site-header, main, .site-footer {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.site-header { padding-top: 32px; }
+.site-header h1 { margin: 0; color: var(--accent); }
+.subtitle { margin: 4px 0 24px; color: var(--muted); }
+
+.search input[type="search"] {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+.search input[type="search"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.search-mode { display: flex; gap: 16px; margin-top: 10px; color: var(--muted); font-size: .95rem; }
+
+.status { color: var(--muted); min-height: 1.5em; }
+
+.results { list-style: none; padding: 0; margin: 0; }
+
+.entry {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.entry-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.entry-word { font-size: 1.3rem; font-weight: 600; margin: 0; }
+.entry-meta { color: var(--muted); font-style: italic; }
+.entry-translations { margin: 6px 0 0; }
+.entry-examples { margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
+.entry-examples .pt { color: var(--text); }
+
+mark { background: none; color: var(--accent); font-weight: 600; }
+
+.site-footer { padding: 32px 16px; color: var(--muted); font-size: .9rem; }
+.site-footer a { color: var(--muted); }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}

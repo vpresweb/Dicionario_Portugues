@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dicionário Português</title>
+  <meta name="description" content="Интерактивный словарь португальского языка">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>Dicionário Português</h1>
+    <p class="subtitle">Португальско-русский словарь</p>
+  </header>
+
+  <main>
+    <form class="search" role="search" id="search-form">
+      <label for="search-input" class="visually-hidden">Поиск слова</label>
+      <input id="search-input" type="search" autocomplete="off" autofocus
+             placeholder="Слово на португальском или русском">
+      <div class="search-mode" role="radiogroup" aria-label="Направление">
+        <label><input type="radio" name="mode" value="all" checked> Все</label>
+        <label><input type="radio" name="mode" value="pt"> PT → RU</label>
+        <label><input type="radio" name="mode" value="ru"> RU → PT</label>
+      </div>
+    </form>
+
+    <p class="status" id="status" aria-live="polite"></p>
+    <ul class="results" id="results"></ul>
+  </main>
+
+  <footer class="site-footer">
+    <a href="https://github.com/vpresweb/Dicionario_Portugues">GitHub</a>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+[
+  {
+    "word": "água",
+    "pos": "noun",
+    "gender": "f",
+    "translations": ["вода"],
+    "examples": [{ "pt": "Um copo de água, por favor.", "ru": "Стакан воды, пожалуйста." }]
+  },
+  {
+    "word": "casa",
+    "pos": "noun",
+    "gender": "f",
+    "translations": ["дом", "жилище"],
+    "examples": [{ "pt": "Vou para casa.", "ru": "Я иду домой." }]
+  },
+  {
+    "word": "livro",
+    "pos": "noun",
+    "gender": "m",
+    "translations": ["книга"],
+    "examples": [{ "pt": "Estou a ler um livro.", "ru": "Я читаю книгу." }]
+  },
+  {
+    "word": "coração",
+    "pos": "noun",
+    "gender": "m",
+    "translations": ["сердце"]
+  },
+  {
+    "word": "ser",
+    "pos": "verb",
+    "translations": ["быть", "являться"],
+    "examples": [{ "pt": "Eu sou russo.", "ru": "Я русский." }]
+  },
+  {
+    "word": "estar",
+    "pos": "verb",
+    "translations": ["быть", "находиться"],
+    "examples": [{ "pt": "Estou em Lisboa.", "ru": "Я в Лиссабоне." }]
+  },
+  {
+    "word": "falar",
+    "pos": "verb",
+    "translations": ["говорить", "разговаривать"],
+    "examples": [{ "pt": "Fala português?", "ru": "Вы говорите по-португальски?" }]
+  },
+  {
+    "word": "obrigado",
+    "pos": "interj",
+    "translations": ["спасибо"],
+    "examples": [{ "pt": "Muito obrigado!", "ru": "Большое спасибо!" }]
+  },
+  {
+    "word": "bonito",
+    "pos": "adj",
+    "translations": ["красивый", "симпатичный"]
+  },
+  {
+    "word": "hoje",
+    "pos": "adv",
+    "translations": ["сегодня"],
+    "examples": [{ "pt": "Hoje está sol.", "ru": "Сегодня солнечно." }]
+  }
+]
