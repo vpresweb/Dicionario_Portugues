@@ -164,6 +164,19 @@ body {
   cursor: pointer;
 }
 
+.speak { cursor: pointer; border-radius: 4px; }
+.speak:hover, .speak:focus-visible {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  outline: none;
+}
+.speak.speaking { color: var(--accent); }
+.entry-word.speak::after { content: " 🔊"; font-size: .6em; opacity: .5; }
+.no-speech .speak { cursor: inherit; }
+.no-speech .speak:hover { text-decoration: none; }
+.no-speech .entry-word.speak::after { content: none; }
+.speech-note { margin: 0 0 8px; }
+
 mark { background: none; color: var(--accent); font-weight: 600; }
 
 .site-footer { padding: 32px 16px; color: var(--muted); font-size: .9rem; }

@@ -3,6 +3,7 @@ import { loadDictionary, search } from './dictionary.js';
 import { PERSONS, IMPERATIVE_PERSONS, TENSES, IMPERATIVES } from './conjugation.js';
 import { escapeHtml, entryMeta } from './format.js';
 import { initCards } from './cards.js';
+import { initSpeech } from './speech.js';
 
 const form = document.getElementById('search-form');
 const input = document.getElementById('search-input');
@@ -19,7 +20,7 @@ let cardsStarted = false;
 
 function renderTable({ label, ru }, forms, persons) {
   const rows = forms
-    .map((form, i) => `<tr><td class="person">${persons[i]}</td><td lang="pt">${escapeHtml(form)}</td></tr>`)
+    .map((form, i) => `<tr><td class="person">${persons[i]}</td><td class="speak" lang="pt">${escapeHtml(form)}</td></tr>`)
     .join('');
   return `
     <table class="tense">
@@ -35,8 +36,8 @@ function renderConjugation(conjugated) {
   ].join('');
 
   const extra = [
-    conjugated.participio && `Particípio: <b lang="pt">${escapeHtml(conjugated.participio)}</b>`,
-    conjugated.gerundio && `Gerúndio: <b lang="pt">${escapeHtml(conjugated.gerundio)}</b>`,
+    conjugated.participio && `Particípio: <b class="speak" lang="pt">${escapeHtml(conjugated.participio)}</b>`,
+    conjugated.gerundio && `Gerúndio: <b class="speak" lang="pt">${escapeHtml(conjugated.gerundio)}</b>`,
   ].filter(Boolean).join(' · ');
 
   return `
@@ -50,13 +51,13 @@ function renderConjugation(conjugated) {
 function renderEntry(entry) {
   const meta = entryMeta(entry);
   const examples = (entry.examples ?? [])
-    .map((ex) => `<li><span class="pt">${escapeHtml(ex.pt)}</span> — ${escapeHtml(ex.ru)}</li>`)
+    .map((ex) => `<li><span class="pt speak" lang="pt">${escapeHtml(ex.pt)}</span> — ${escapeHtml(ex.ru)}</li>`)
     .join('');
 
   return `
     <li class="entry">
       <div class="entry-head">
-        <h2 class="entry-word" lang="pt">${escapeHtml(entry.word)}</h2>
+        <h2 class="entry-word speak" lang="pt" tabindex="0" title="Прослушать">${escapeHtml(entry.word)}</h2>
         ${meta ? `<span class="entry-meta">${escapeHtml(meta)}</span>` : ''}
       </div>
       <p class="entry-translations">${entry.translations.map(escapeHtml).join(', ')}</p>
@@ -100,6 +101,7 @@ function showView() {
 }
 
 async function init() {
+  initSpeech(document.getElementById('speech-note'));
   showView();
   window.addEventListener('hashchange', showView);
 

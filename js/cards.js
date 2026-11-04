@@ -3,7 +3,7 @@
 // выпадают чаще; «знаю» переносит слово в следующую коробку, «не знаю» — в первую.
 import { escapeHtml, entryMeta } from './format.js';
 
-const STORAGE_KEY = 'dicionario.cards.v1';
+const STORAGE_KEY = 'dicionario.cards.v2';
 const BOX_WEIGHTS = [16, 8, 4, 2, 1];
 const LEARNED_BOX = 3;
 const OTHER_POS = new Set(['adv', 'prep', 'pron', 'conj', 'interj', 'num', 'phrase']);
@@ -47,7 +47,9 @@ export function initCards(entries, root) {
   let flipped = false;
   let resetArmed = null;
 
-  const box = (entry) => progress[entry.word] ?? 0;
+  // Ключ — слово и часть речи: у омонимов (jantar — глагол и существительное) прогресс раздельный.
+  const id = (entry) => `${entry.word}|${entry.pos}`;
+  const box = (entry) => progress[id(entry)] ?? 0;
   const pool = () => entries.filter((e) => matchesFilter(e, filterSelect.value));
 
   function pick() {
@@ -65,7 +67,7 @@ export function initCards(entries, root) {
   function renderStats() {
     const words = pool();
     const learned = words.filter((e) => box(e) >= LEARNED_BOX).length;
-    const seen = words.filter((e) => e.word in progress).length;
+    const seen = words.filter((e) => id(e) in progress).length;
     stats.textContent = `Выучено ${learned} из ${words.length} · просмотрено ${seen}`;
   }
 
@@ -82,7 +84,7 @@ export function initCards(entries, root) {
     }
 
     const ptToRu = directionSelect.value === 'pt';
-    const word = `<span lang="pt">${escapeHtml(current.word)}</span>`;
+    const word = `<span class="speak" lang="pt" title="Прослушать">${escapeHtml(current.word)}</span>`;
     const translation = escapeHtml(current.translations.join(', '));
     const meta = entryMeta(current);
     const example = current.examples?.[0];
@@ -91,7 +93,7 @@ export function initCards(entries, root) {
     back.innerHTML = `
       <span class="card-answer">${ptToRu ? translation : word}</span>
       ${meta ? `<span class="card-meta">${escapeHtml(meta)}</span>` : ''}
-      ${example ? `<span class="card-example"><span lang="pt">${escapeHtml(example.pt)}</span> — ${escapeHtml(example.ru)}</span>` : ''}`;
+      ${example ? `<span class="card-example"><span class="speak" lang="pt">${escapeHtml(example.pt)}</span> — ${escapeHtml(example.ru)}</span>` : ''}`;
   }
 
   function next() {
@@ -110,7 +112,7 @@ export function initCards(entries, root) {
 
   function answer(known) {
     if (!current || !flipped) return;
-    progress[current.word] = known ? Math.min(box(current) + 1, BOX_WEIGHTS.length - 1) : 0;
+    progress[id(current)] = known ? Math.min(box(current) + 1, BOX_WEIGHTS.length - 1) : 0;
     saveProgress(progress);
     next();
   }
