@@ -11,22 +11,62 @@
   <header class="site-header">
     <h1>Dicionário Português</h1>
     <p class="subtitle">Португальско-русский словарь</p>
+    <nav class="tabs" aria-label="Разделы">
+      <a href="#" data-view="dictionary">Словарь</a>
+      <a href="#cards" data-view="cards">Карточки</a>
+    </nav>
   </header>
 
   <main>
-    <form class="search" role="search" id="search-form">
-      <label for="search-input" class="visually-hidden">Поиск слова</label>
-      <input id="search-input" type="search" autocomplete="off" autofocus
-             placeholder="Слово на португальском или русском">
-      <div class="search-mode" role="radiogroup" aria-label="Направление">
-        <label><input type="radio" name="mode" value="all" checked> Все</label>
-        <label><input type="radio" name="mode" value="pt"> PT → RU</label>
-        <label><input type="radio" name="mode" value="ru"> RU → PT</label>
-      </div>
-    </form>
+    <section id="dictionary-view">
+      <form class="search" role="search" id="search-form">
+        <label for="search-input" class="visually-hidden">Поиск слова</label>
+        <input id="search-input" type="search" autocomplete="off" autofocus
+               placeholder="Слово на португальском или русском">
+        <div class="search-mode" role="radiogroup" aria-label="Направление">
+          <label><input type="radio" name="mode" value="all" checked> Все</label>
+          <label><input type="radio" name="mode" value="pt"> PT → RU</label>
+          <label><input type="radio" name="mode" value="ru"> RU → PT</label>
+        </div>
+      </form>
 
-    <p class="status" id="status" aria-live="polite"></p>
-    <ul class="results" id="results"></ul>
+      <p class="status" id="status" aria-live="polite"></p>
+      <ul class="results" id="results"></ul>
+    </section>
+
+    <section id="cards-view" hidden>
+      <div class="cards-controls">
+        <label>Направление
+          <select id="cards-direction">
+            <option value="pt">PT → RU</option>
+            <option value="ru">RU → PT</option>
+          </select>
+        </label>
+        <label>Слова
+          <select id="cards-filter">
+            <option value="all">Все</option>
+            <option value="noun">Существительные</option>
+            <option value="verb">Глаголы</option>
+            <option value="adj">Прилагательные</option>
+            <option value="other">Остальные</option>
+          </select>
+        </label>
+      </div>
+
+      <button class="card" id="card" type="button" aria-live="polite">
+        <span class="card-front" id="card-front"></span>
+        <span class="card-back" id="card-back"></span>
+      </button>
+      <p class="card-hint" id="card-hint">Нажмите на карточку или пробел, чтобы увидеть перевод</p>
+
+      <div class="card-actions">
+        <button type="button" id="card-unknown" class="unknown">← Не знаю</button>
+        <button type="button" id="card-known" class="known">Знаю →</button>
+      </div>
+
+      <p class="cards-stats" id="cards-stats"></p>
+      <button type="button" id="cards-reset" class="link-button">Сбросить прогресс</button>
+    </section>
   </main>
 
   <footer class="site-footer">

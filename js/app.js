@@ -1,48 +1,38 @@
-// Интерфейс: поле поиска, переключатель направления, вывод карточек.
+// Интерфейс: вкладки «Словарь» и «Карточки», поиск, вывод статей.
 import { loadDictionary, search } from './dictionary.js';
-import { PERSONS, TENSES } from './conjugation.js';
-
-const POS_LABELS = {
-  noun: 'сущ.',
-  verb: 'гл.',
-  adj: 'прил.',
-  adv: 'нареч.',
-  prep: 'предл.',
-  pron: 'мест.',
-  conj: 'союз',
-  interj: 'межд.',
-  num: 'числ.',
-  phrase: 'выражение',
-};
-
-const GENDER_LABELS = { m: 'м. р.', f: 'ж. р.' };
+import { PERSONS, IMPERATIVE_PERSONS, TENSES, IMPERATIVES } from './conjugation.js';
+import { escapeHtml, entryMeta } from './format.js';
+import { initCards } from './cards.js';
 
 const form = document.getElementById('search-form');
 const input = document.getElementById('search-input');
 const status = document.getElementById('status');
 const results = document.getElementById('results');
+const views = {
+  dictionary: document.getElementById('dictionary-view'),
+  cards: document.getElementById('cards-view'),
+};
+const tabs = document.querySelectorAll('[data-view]');
 
 let entries = [];
+let cardsStarted = false;
 
-function escapeHtml(text) {
-  return text.replace(/[&<>"']/g, (c) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-  })[c]);
+function renderTable({ label, ru }, forms, persons) {
+  const rows = forms
+    .map((form, i) => `<tr><td class="person">${persons[i]}</td><td lang="pt">${escapeHtml(form)}</td></tr>`)
+    .join('');
+  return `
+    <table class="tense">
+      <caption><span lang="pt">${label}</span><small>${ru}</small></caption>
+      <tbody>${rows}</tbody>
+    </table>`;
 }
 
 function renderConjugation(conjugated) {
-  const tables = TENSES.filter(({ key }) => conjugated[key])
-    .map(({ key, label, ru }) => {
-      const rows = conjugated[key]
-        .map((form, i) => `<tr><td class="person">${PERSONS[i]}</td><td lang="pt">${escapeHtml(form)}</td></tr>`)
-        .join('');
-      return `
-        <table class="tense">
-          <caption><span lang="pt">${label}</span><small>${ru}</small></caption>
-          <tbody>${rows}</tbody>
-        </table>`;
-    })
-    .join('');
+  const tables = [
+    ...TENSES.filter(({ key }) => conjugated[key]).map((t) => renderTable(t, conjugated[t.key], PERSONS)),
+    ...IMPERATIVES.filter(({ key }) => conjugated[key]).map((t) => renderTable(t, conjugated[t.key], IMPERATIVE_PERSONS)),
+  ].join('');
 
   const extra = [
     conjugated.participio && `Particípio: <b lang="pt">${escapeHtml(conjugated.participio)}</b>`,
@@ -58,10 +48,7 @@ function renderConjugation(conjugated) {
 }
 
 function renderEntry(entry) {
-  const meta = [POS_LABELS[entry.pos] ?? entry.pos, GENDER_LABELS[entry.gender]]
-    .filter(Boolean)
-    .join(', ');
-
+  const meta = entryMeta(entry);
   const examples = (entry.examples ?? [])
     .map((ex) => `<li><span class="pt">${escapeHtml(ex.pt)}</span> — ${escapeHtml(ex.ru)}</li>`)
     .join('');
@@ -101,7 +88,21 @@ function update() {
   history.replaceState(null, '', url);
 }
 
+// Вкладка выбирается по хэшу: #cards — карточки, иначе словарь.
+function showView() {
+  const name = location.hash === '#cards' ? 'cards' : 'dictionary';
+  for (const [key, view] of Object.entries(views)) view.hidden = key !== name;
+  for (const tab of tabs) tab.setAttribute('aria-current', tab.dataset.view === name ? 'page' : 'false');
+  if (name === 'cards' && entries.length && !cardsStarted) {
+    cardsStarted = true;
+    initCards(entries, views.cards);
+  }
+}
+
 async function init() {
+  showView();
+  window.addEventListener('hashchange', showView);
+
   status.textContent = 'Загрузка словаря…';
   try {
     entries = await loadDictionary();
@@ -117,6 +118,7 @@ async function init() {
   form.addEventListener('change', update);
   form.addEventListener('submit', (event) => event.preventDefault());
   update();
+  showView();
 }
 
 init();

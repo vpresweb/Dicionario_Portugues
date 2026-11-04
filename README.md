@@ -7,9 +7,10 @@
 - поиск в обе стороны: PT → RU и RU → PT;
 - поиск без учёта регистра и диакритики (`acao` найдёт `ação`);
 - части речи, род, примеры употребления;
-- спряжение глаголов в шести временах и наклонениях, причастие и герундий;
+- спряжение глаголов во всех шести лицах (включая vós), повелительное наклонение, причастие и герундий;
 - поиск по формам глагола (`fiz` найдёт `fazer`);
-- ссылка на результат поиска (`?q=слово`).
+- ссылка на результат поиска (`?q=слово`);
+- режим карточек для заучивания слов (`#cards`).
 
 Онлайн: https://vpresweb.github.io/Dicionario_Portugues/
 
@@ -18,7 +19,9 @@
 ```
 index.html            страница приложения
 css/style.css         стили (светлая и тёмная тема)
-js/app.js             интерфейс: поиск и вывод карточек
+js/app.js             интерфейс: вкладки, поиск, вывод статей
+js/cards.js           режим карточек
+js/format.js          общие подписи и экранирование
 js/dictionary.js      загрузка словаря и логика поиска
 js/conjugation.js     спряжение глаголов
 data/dictionary.json  словарные статьи
@@ -40,9 +43,12 @@ data/dictionary.json  словарные статьи
 
 ## Спряжение
 
-Формы строятся по европейскому варианту португальского для лиц eu, tu, ele/ela/você, nós, eles/elas/vocês
-(форма vós не выводится). Времена: presente, pretérito perfeito, pretérito imperfeito, futuro, condicional,
-presente do conjuntivo.
+Формы строятся по европейскому варианту португальского для лиц eu, tu, ele/ela/você, nós, vós, eles/elas/vocês.
+Времена: presente, pretérito perfeito, pretérito imperfeito, futuro, condicional, presente do conjuntivo.
+
+Повелительное наклонение (tu, você, nós, vós, vocês) строится автоматически: для tu и vós — форма presente
+без конечного `-s` (`falas` → `fala`, `falais` → `falai`), для остальных — формы conjuntivo.
+Отрицательное повелительное — `não` + conjuntivo (`não fales`).
 
 Правильные глаголы на `-ar`, `-er`, `-ir` спрягаются автоматически, включая орфографические замены
 (`ficar` → `fiquei`, `conhecer` → `conheço`). Для неправильных глаголов отличающиеся формы задаются
@@ -54,13 +60,22 @@ presente do conjuntivo.
   "pos": "verb",
   "translations": ["делать"],
   "conjugation": {
-    "presente": ["faço", "fazes", "faz", "fazemos", "fazem"],
+    "presente": ["faço", "fazes", "faz", "fazemos", "fazeis", "fazem"],
+    "imperativo": ["faz", "faça", "façamos", "fazei", "façam"],
     "participio": "feito"
   }
 }
 ```
 
-Ключи: `presente`, `perfeito`, `imperfeito`, `futuro`, `condicional`, `conjuntivo` (по пять форм), `participio`, `gerundio`.
+Ключи: `presente`, `perfeito`, `imperfeito`, `futuro`, `condicional`, `conjuntivo` (по шесть форм: eu, tu, ele, nós, vós, eles),
+`imperativo` (пять форм: tu, você, nós, vós, vocês), `participio`, `gerundio`.
+
+## Карточки
+
+Вкладка «Карточки» показывает слово, по нажатию — перевод, род и пример. Ответ «Знаю» или «Не знаю»
+(клавиши → и ←, пробел — перевернуть). Повторение по системе Лейтнера: пять уровней, незнакомые слова
+выпадают чаще, слово считается выученным с четвёртого уровня. Можно выбрать направление (PT → RU, RU → PT)
+и часть речи. Прогресс хранится в `localStorage` браузера.
 
 ## Запуск
 
