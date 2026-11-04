@@ -5,6 +5,7 @@
 const PREFERRED_LANGS = ['pt-pt', 'pt-br'];
 
 let voice = null;
+let current = null;
 
 const supported = () => 'speechSynthesis' in window;
 const langOf = (v) => v.lang.replace('_', '-').toLowerCase();
@@ -21,7 +22,15 @@ function pickVoice() {
 export function speak(text, element) {
   if (!supported() || !text) return;
   voice ??= pickVoice();
-  speechSynthesis.cancel();
+  // cancel() в Chrome задерживает следующую фразу почти на секунду, поэтому вызываем его только
+  // если звучит другой текст; тот же текст просто дозвучивает.
+  // resume() снимает «залипшую» паузу синтезатора после простоя.
+  if (speechSynthesis.speaking || speechSynthesis.pending) {
+    if (text === current) return;
+    speechSynthesis.cancel();
+  }
+  speechSynthesis.resume();
+  current = text;
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = voice?.lang ?? 'pt-PT';
@@ -61,13 +70,43 @@ export function initSpeech(note) {
   checkVoices();
   speechSynthesis.addEventListener('voiceschanged', checkVoices);
 
+  // Синтезатор запускается не мгновенно, поэтому при первом действии пользователя
+  // (речь разрешена только после него) прогреваем его беззвучной фразой.
+  let warmed = false;
+  const warmUp = () => {
+    if (warmed) return;
+    warmed = true;
+    const utterance = new SpeechSynthesisUtterance(' ');
+    utterance.volume = 0;
+    speechSynthesis.speak(utterance);
+  };
+
+  // Мышью озвучиваем уже при нажатии кнопки, не дожидаясь отпускания;
+  // касание и клавиатура идут через click, чтобы прокрутка пальцем ничего не озвучивала.
+  let pressed = null;
+  document.addEventListener('pointerdown', (event) => {
+    const element = event.target.closest('.speak');
+    if (event.pointerType !== 'mouse' || event.button !== 0 || !element) {
+      // Не на кнопках: карточка озвучивает слово сама, и прогрев прервал бы его.
+      if (!element && !event.target.closest('button')) warmUp();
+      return;
+    }
+    warmed = true;
+    pressed = element;
+    speakElement(element);
+  });
+
   document.addEventListener('click', (event) => {
     const element = event.target.closest('.speak');
-    if (element) speakElement(element);
+    if (element && element !== pressed) speakElement(element);
+    pressed = null;
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key !== 'Enter') return;
+    if (event.key !== 'Enter') {
+      warmUp();
+      return;
+    }
     const element = event.target.closest('.speak[tabindex]');
     if (element) speakElement(element);
   });
