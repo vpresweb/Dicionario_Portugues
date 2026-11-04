@@ -123,7 +123,11 @@ async function init() {
   if (initial) input.value = initial;
 
   input.addEventListener('input', update);
-  form.addEventListener('change', update);
+  // Только переключатель направления: change от поля поиска приходит при потере фокуса,
+  // и перерисовка под курсором съедала первый клик (например, по «Спряжению»).
+  form.addEventListener('change', (event) => {
+    if (event.target.name === 'mode') update();
+  });
   form.addEventListener('submit', (event) => event.preventDefault());
   update();
   showView();
