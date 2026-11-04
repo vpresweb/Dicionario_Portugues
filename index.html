@@ -22,8 +22,11 @@
     <section id="dictionary-view">
       <form class="search" role="search" id="search-form">
         <label for="search-input" class="visually-hidden">Поиск слова</label>
-        <input id="search-input" type="search" autocomplete="off" autofocus
-               placeholder="Слово на португальском или русском">
+        <div class="search-field">
+          <input id="search-input" type="search" autocomplete="off" autofocus
+                 placeholder="Слово на португальском или русском">
+          <button type="button" id="search-clear" class="search-clear" aria-label="Очистить" title="Очистить" hidden>×</button>
+        </div>
         <div class="search-mode" role="radiogroup" aria-label="Направление">
           <label><input type="radio" name="mode" value="all" checked> Все</label>
           <label><input type="radio" name="mode" value="pt"> PT → RU</label>

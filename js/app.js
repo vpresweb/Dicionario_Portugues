@@ -8,6 +8,7 @@ import { initSpeech } from './speech.js';
 
 const form = document.getElementById('search-form');
 const input = document.getElementById('search-input');
+const clearButton = document.getElementById('search-clear');
 const status = document.getElementById('status');
 const results = document.getElementById('results');
 const views = {
@@ -86,6 +87,7 @@ function update() {
   const found = search(entries, query, currentMode());
 
   results.innerHTML = found.map(renderEntry).join('');
+  clearButton.hidden = !query;
   if (!query.trim()) {
     status.textContent = `В словаре ${entries.length} слов. Начните вводить слово.`;
   } else if (!found.length) {
@@ -138,6 +140,11 @@ async function init() {
     if (event.target.name === 'mode') update();
   });
   form.addEventListener('submit', (event) => event.preventDefault());
+  clearButton.addEventListener('click', () => {
+    input.value = '';
+    update();
+    input.focus();
+  });
   status.addEventListener('click', (event) => {
     const hint = event.target.closest('[data-hint]');
     if (!hint) return;
