@@ -111,7 +111,7 @@ export function initQuiz(entries, root) {
     feedback.className = 'quiz-feedback';
     feedback.innerHTML = '';
     input.value = '';
-    input.readOnly = false;
+    input.enterKeyHint = 'done';
     submitButton.textContent = 'Проверить';
     revealButton.disabled = false;
 
@@ -151,13 +151,19 @@ export function initQuiz(entries, root) {
     };
     feedback.className = `quiz-feedback ${result}`;
     feedback.innerHTML = messages[result];
-    input.readOnly = true;
+    // Поле остаётся в фокусе и доступным, чтобы на телефоне не закрывалась клавиатура:
+    // Enter переходит дальше, а начало ввода сразу открывает следующий вопрос.
+    input.enterKeyHint = 'next';
     submitButton.textContent = 'Дальше →';
     revealButton.disabled = true;
     renderScore();
     speak(question.answer, feedback.querySelector('.speak'));
-    submitButton.focus();
+    input.focus();
   }
+
+  input.addEventListener('beforeinput', () => {
+    if (answered) next();
+  });
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -177,16 +183,21 @@ export function initQuiz(entries, root) {
     if (question && !answered) finish('wrong');
   });
 
-  // Вставка букв с диакритикой в позицию курсора; mousedown не забирает фокус у поля.
-  accents.addEventListener('mousedown', (event) => event.preventDefault());
-  accents.addEventListener('click', (event) => {
+  // Вставка букв с диакритикой в позицию курсора. Отмена mousedown и touchend не даёт кнопке
+  // забрать фокус у поля, иначе на телефоне закрывается клавиатура.
+  function insertAccent(event) {
     const button = event.target.closest('button');
-    if (!button || input.readOnly || input.disabled) return;
+    if (!button || input.disabled) return;
+    event.preventDefault();
+    if (answered) next();
     const { selectionStart: start, selectionEnd: end, value } = input;
     input.value = value.slice(0, start) + button.textContent + value.slice(end);
     input.setSelectionRange(start + 1, start + 1);
     input.focus();
-  });
+  }
+  accents.addEventListener('mousedown', (event) => event.preventDefault());
+  accents.addEventListener('touchend', insertAccent);
+  accents.addEventListener('click', insertAccent);
 
   function updateSettings() {
     settings.tenses = [...tensesBox.querySelectorAll('input:checked')].map((i) => i.value);
