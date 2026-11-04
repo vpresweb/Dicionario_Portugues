@@ -2,7 +2,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { normalize, prepareEntries, search } from '../js/dictionary.js';
+import { editDistance, normalize, prepareEntries, search, suggest } from '../js/dictionary.js';
 import { checkAnswer, filterVerbs, isIrregular, makeQuestion, QUIZ_TENSES } from '../js/quiz.js';
 
 const entries = prepareEntries(JSON.parse(readFileSync(new URL('../data/dictionary.json', import.meta.url), 'utf8')));
@@ -33,6 +33,36 @@ describe('поиск', () => {
 
   test('пустой запрос ничего не находит', () => {
     assert.deepEqual(words('   '), []);
+  });
+});
+
+describe('подсказки при опечатке', () => {
+  const hints = (query, mode) => suggest(entries, query, mode).map((h) => h.text);
+
+  test('editDistance: замена, вставка, удаление, перестановка', () => {
+    assert.equal(editDistance('vamus', 'vamos'), 1);
+    assert.equal(editDistance('casa', 'casas'), 1);
+    assert.equal(editDistance('obrigado', 'obigado'), 1);
+    assert.equal(editDistance('palavra', 'plaavra'), 1);
+    assert.equal(editDistance('gato', 'gato'), 0);
+    assert.equal(editDistance('gato', 'elefante', 2), 3);
+  });
+
+  test('форма глагола с опечаткой', () => {
+    assert.deepEqual(words('vamus'), []);
+    const found = suggest(entries, 'vamus');
+    assert.ok(found.some((h) => h.text === 'vamos' && h.entry.word === 'ir'));
+  });
+
+  test('слово и перевод с опечаткой', () => {
+    assert.ok(hints('obigado').includes('obrigado'));
+    assert.ok(hints('сабака', 'ru').includes('собака'));
+    assert.ok(!hints('сабака', 'pt').includes('собака'));
+  });
+
+  test('короткие запросы и далёкие слова не подсказываются', () => {
+    assert.deepEqual(hints('xz'), []);
+    assert.deepEqual(hints('qqqqqqq'), []);
   });
 });
 

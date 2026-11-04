@@ -1,5 +1,5 @@
 // Интерфейс: вкладки «Словарь» и «Карточки», поиск, вывод статей.
-import { loadDictionary, search } from './dictionary.js';
+import { loadDictionary, search, suggest } from './dictionary.js';
 import { PERSONS, IMPERATIVE_PERSONS, TENSES, IMPERATIVES } from './conjugation.js';
 import { escapeHtml, entryMeta } from './format.js';
 import { initCards } from './cards.js';
@@ -71,6 +71,12 @@ function renderEntry(entry) {
     </li>`;
 }
 
+// Подсказка при опечатке; для формы глагола в скобках — инфинитив.
+function renderHint({ text, entry }) {
+  const link = `<a href="?q=${encodeURIComponent(text)}" data-hint="${escapeHtml(text)}">${escapeHtml(text)}</a>`;
+  return text === entry.word || !entry.conjugated ? link : `${link} (${escapeHtml(entry.word)})`;
+}
+
 function currentMode() {
   return form.querySelector('input[name="mode"]:checked').value;
 }
@@ -83,7 +89,10 @@ function update() {
   if (!query.trim()) {
     status.textContent = `В словаре ${entries.length} слов. Начните вводить слово.`;
   } else if (!found.length) {
-    status.textContent = 'Ничего не найдено.';
+    const hints = suggest(entries, query, currentMode());
+    status.innerHTML = hints.length
+      ? `Ничего не найдено. Возможно, вы имели в виду: ${hints.map(renderHint).join(', ')}`
+      : 'Ничего не найдено.';
   } else {
     status.textContent = `Найдено: ${found.length}`;
   }
@@ -129,6 +138,13 @@ async function init() {
     if (event.target.name === 'mode') update();
   });
   form.addEventListener('submit', (event) => event.preventDefault());
+  status.addEventListener('click', (event) => {
+    const hint = event.target.closest('[data-hint]');
+    if (!hint) return;
+    event.preventDefault();
+    input.value = hint.dataset.hint;
+    update();
+  });
   update();
   showView();
 }
