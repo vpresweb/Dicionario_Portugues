@@ -17,7 +17,7 @@ export function isIrregular(entry) {
 }
 
 export function filterVerbs(entries, set) {
-  const verbs = entries.filter((e) => e.pos === 'verb');
+  const verbs = entries.filter((e) => e.pos === 'verb' && !e.extra);
   if (set === 'irregular') return verbs.filter(isIrregular);
   if (set === 'regular') return verbs.filter((e) => !isIrregular(e));
   return verbs;
